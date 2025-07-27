@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ant Design表格行合并测试</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/react@17.0.2/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@17.0.2/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/antd@4.24.8/dist/antd.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.8/dist/antd.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/babel-standalone@6.26.0/babel.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 md:p-8">
+  <div class="max-w-6xl mx-auto bg-white rounded-lg shadow-lg p-6 md:p-8">
+    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Ant Design表格行合并测试</h1>
+    <div id="root" class="w-full overflow-x-auto"></div>
+  </div>
+
+  <script type="text/babel">
+    const { Table } = antd;
+
+    const data = [
+      { region: 'region_1', area: 'a', lasttwoyear: 20, lastoneyear: 10 },
+      { region: 'region_1', area: 'b', lasttwoyear: 30, lastoneyear: 10 },
+      { region: 'region_1', area: 'c', lasttwoyear: 20, lastoneyear: 15 },
+      { region: 'region_2', area: 'c', lasttwoyear: 20, lastoneyear: 15 },
+      { region: 'region_3', area: 'c', lasttwoyear: 20, lastoneyear: 15 },
+      { region: 'region_3', area: 'c', lasttwoyear: 25, lastoneyear: 15 },
+    ];
+
+    // 处理数据，计算 rowSpan
+    const getMergedData = () => {
+      const map = new Map();
+      
+      data.forEach((item, index) => {
+        if (!map.has(item.region)) {
+          map.set(item.region, {
+            startIndex: index,
+            count: 1,
+          });
+        } else {
+          const info = map.get(item.region);
+          info.count++;
+        }
+      });
+      
+      return data.map((item, index) => {
+        const info = map.get(item.region);
+        return {
+          ...item,
+          rowSpan: index === info.startIndex ? info.count : 0,
+          key: index, // 添加唯一key
+        };
+      });
+    };
+
+    const mergedData = getMergedData();
+
+    const columns = [
+      {
+        title: '区域',
+        dataIndex: 'region',
+        key: 'region',
+        render: (text, record) => {
+          const obj = {
+            children: text,
+            props: {},
+          };
+          if (record.rowSpan) {
+            obj.props.rowSpan = record.rowSpan;
+          } else {
+            obj.props.rowSpan = 0;
+          }
+          return obj;
+        },
+      },
+      {
+        title: '地区',
+        dataIndex: 'area',
+        key: 'area',
+      },
+      {
+        title: '前年数据',
+        dataIndex: 'lasttwoyear',
+        key: 'lasttwoyear',
+      },
+      {
+        title: '去年数据',
+        dataIndex: 'lastoneyear',
+        key: 'lastoneyear',
+      },
+    ];
+
+    ReactDOM.render(<Table columns={columns} dataSource={mergedData} />, document.getElementById('root'));
+  </script>
+</body>
+</html>
+    

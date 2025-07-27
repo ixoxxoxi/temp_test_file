@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ant Design 二级表头表格示例</title>
+  <link rel="stylesheet" href="https://unpkg.com/antd@5.10.3/dist/antd.min.css">
+  <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.9/dayjs.min.js"></script>
+  <script src="https://unpkg.com/antd@5.10.3/dist/antd.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.22.15/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { createElement } = React;
+    const { Table } = antd;
+
+    // 二级表头配置
+    const columns = [
+      {
+        title: '用户信息',
+        children: [
+          {
+            title: '姓名',
+            dataIndex: 'name',
+            key: 'name',
+            width: 100,
+          },
+          {
+            title: '年龄',
+            dataIndex: 'age',
+            key: 'age',
+            width: 80,
+          },
+          {
+            title: '性别',
+            dataIndex: 'gender',
+            key: 'gender',
+            width: 80,
+          },
+        ],
+      },
+      {
+        title: '联系方式',
+        children: [
+          {
+            title: '电话',
+            dataIndex: 'phone',
+            key: 'phone',
+            width: 150,
+          },
+          {
+            title: '邮箱',
+            dataIndex: 'email',
+            key: 'email',
+            width: 200,
+          },
+        ],
+      },
+      {
+        title: '操作',
+        key: 'action',
+        fixed: 'right',
+        width: 100,
+        render: (_, record) => (
+          <a href="#">查看</a>
+        ),
+      },
+    ];
+
+    // 表格数据
+    const data = [
+      {
+        key: '1',
+        name: '张三',
+        age: 32,
+        gender: '男',
+        phone: '13800138000',
+        email: 'zhangsan@example.com',
+      },
+      {
+        key: '2',
+        name: '李四',
+        age: 28,
+        gender: '女',
+        phone: '13900139000',
+        email: 'lisi@example.com',
+      },
+      {
+        key: '3',
+        name: '王五',
+        age: 45,
+        gender: '男',
+        phone: '13700137000',
+        email: 'wangwu@example.com',
+      },
+      {
+        key: '4',
+        name: '赵六',
+        age: 26,
+        gender: '女',
+        phone: '13600136000',
+        email: 'zhaoliu@example.com',
+      },
+    ];
+
+    // 老师信息数据
+    const teacherData = {
+      key: 'teacher',
+      name: '陈老师',
+      age: 40,
+      gender: '女',
+      phone: '13500135000',
+      email: 'teacher@school.com',
+      role: '班主任',
+    };
+
+    // 自定义表格组件样式
+    const components = {
+      header: {
+        cell: ({ children, ...restProps }) => {
+          return createElement('th', {
+            ...restProps,
+            style: {
+              ...restProps.style,
+              borderColor: 'blue',
+              backgroundColor: 'lightblue',
+              borderRadius: 0,
+              textAlign: 'center',
+            },
+          }, children);
+        },
+      },
+      body: {
+        cell: ({ children, ...restProps }) => {
+          return createElement('td', {
+            ...restProps,
+            style: {
+              ...restProps.style,
+              borderColor: 'red',
+              borderRadius: 0,
+              textAlign: 'center',
+            },
+          }, children);
+        },
+      },
+    };
+
+    // 表格组件
+    function NestedHeaderTable() {
+      // 定义老师行的样式
+      const teacherRowStyle = {
+        backgroundColor: 'lightblue',
+        borderColor: 'black',
+        borderRadius: 0,
+      };
+
+      return (
+        <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
+          <h3 style={{ marginBottom: 16 }}>二级表头表格示例</h3>
+          <div style={{ padding: '20px' }}>
+            <Table 
+              columns={columns} 
+              dataSource={data} 
+              scroll={{ x: 800 }} 
+              bordered 
+              components={components} 
+              pagination={false} // 取消分页器
+              summary={() => (
+                <Table.Summary fixed>
+                  <Table.Summary.Row style={teacherRowStyle}>
+                    <Table.Summary.Cell index={0}>
+                      <div style={{ textAlign: 'center' }}>{teacherData.name}</div>
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={1}>
+                      <div style={{ textAlign: 'center' }}>{teacherData.age}</div>
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={2}>
+                      <div style={{ textAlign: 'center' }}>{teacherData.gender}</div>
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={3}>
+                      <div style={{ textAlign: 'center' }}>{teacherData.phone}</div>
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={4}>
+                      <div style={{ textAlign: 'center' }}>{teacherData.email}</div>
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={5}>
+                      <div style={{ textAlign: 'center' }}>
+                        <span style={{ color: 'red', fontWeight: 'bold' }}>{teacherData.role}</span>
+                      </div>
+                    </Table.Summary.Cell>
+                  </Table.Summary.Row>
+                </Table.Summary>
+              )}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    // 渲染应用
+    ReactDOM.render(createElement(NestedHeaderTable), document.getElementById('root'));
+  </script>
+</body>
+</html>
