@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixed Sidebar with Corrected Syntax</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/babel-standalone@6.26.0/babel.min.js"></script>
+    <style>
+        /* 核心解决方案：为滚动条预留固定空间 */
+        .sidebar-wrapper {
+            /* 关键属性：为滚动条永久预留空间，保持宽度稳定 */
+            scrollbar-gutter: stable;
+            -ms-overflow-style: -ms-autohiding-scrollbar;
+        }
+        
+        .sidebar-inner {
+            /* 确保内容区域宽度稳定 */
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+        }
+        
+        /* 自定义滚动条样式优化 */
+        .sidebar-inner::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .sidebar-inner::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .sidebar-inner::-webkit-scrollbar-thumb {
+            background-color: transparent;
+            border-radius: 3px;
+        }
+        
+        .sidebar-inner:hover::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+        }
+        
+        .sidebar-inner:hover::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.02);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="root" class="min-h-screen p-8"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const SidebarMenu = ({ items }) => {
+            // 管理展开的菜单项状态
+            const [expandedKeys, setExpandedKeys] = useState([]);
+
+            // 切换菜单项的展开/折叠状态
+            const toggleMenu = (key) => {
+                setExpandedKeys(prev => 
+                    prev.includes(key)
+                        ? prev.filter(k => k !== key)  // 如果已展开则折叠
+                        : [...prev, key]  // 如果已折叠则展开
+                );
+            };
+
+            // 递归渲染菜单项
+            const renderMenuItem = (item) => {
+                const hasChildren = item.children && item.children.length > 0;
+                const isExpanded = expandedKeys.includes(item.key);
+
+                return (
+                    <li key={item.key} className="mb-1">
+                        {/* 菜单项标题和箭头 */}
+                        <div 
+                            className="flex items-center justify-between px-4 py-3 text-gray-800 hover:bg-gray-100 rounded cursor-pointer transition-colors duration-200 rounded-md w-full"
+                            onClick={() => hasChildren && toggleMenu(item.key)}
+                        >
+                            <span>{item.label}</span>
+                            {hasChildren && (
+                                <span className="transition-transform duration-300 ml-2">
+                                    {isExpanded ? 
+                                        <i className="fa fa-chevron-down text-gray-500"></i> : 
+                                        <i className="fa fa-chevron-right text-gray-500"></i>
+                                    }
+                                </span>
+                            )}
+                        </div>
+
+                        {/* 子菜单 - 带有过渡动画 */}
+                        {hasChildren && (
+                            <div 
+                                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                                    isExpanded ? 'max-h-96 opacity-100 mt-1' : 'max-h-0 opacity-0'
+                                }`}
+                            >
+                                <ul className="ml-4 pl-2 border-l-2 border-gray-200">
+                                    {/* 修复了map函数的语法错误 */}
+                                    {item.children.map(child => renderMenuItem(child))}
+                                </ul>
+                            </div>
+                        )}
+                    </li>
+                );
+            };
+
+            return (
+                <div className="fixed top-[20vh] h-[60vh] w-64 bg-white border border-r border-gray-200 shadow-sm sidebar-wrapper">
+                    <ul className="p-2 sidebar-inner">
+                        {items.map(item => renderMenuItem(item))}
+                    </ul>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const items = [
+                {
+                    key: '1',
+                    label: 'Navigation One',
+                    children: [
+                        { key: '11', label: 'Option 1' },
+                        { key: '12', label: 'Option 2' },
+                        { key: '13', label: 'Option 3' },
+                        { key: '14', label: 'Option 4' },
+                        { key: '15', label: 'Option 5' },
+                        { key: '16', label: 'Option 6' },
+                    ],
+                },
+                {
+                    key: '2',
+                    label: 'Navigation Two',
+                    children: [
+                        { key: '21', label: 'Option 1' },
+                        { key: '22', label: 'Option 2' },
+                        {
+                            key: '23',
+                            label: 'Submenu',
+                            children: [
+                                { key: '231', label: 'Option 1', value: { a: 1 } },
+                                { key: '232', label: 'Option 2', value: { a: 2 } },
+                                { key: '233', label: 'Option 3', value: { a: 3 } },
+                                { key: '234', label: 'Option 4', value: { a: 4 } },
+                            ],
+                        },
+                        {
+                            key: '24',
+                            label: 'Submenu 2',
+                            children: [
+                                { key: '241', label: 'Option 1' },
+                                { key: '242', label: 'Option 2' },
+                                { key: '243', label: 'Option 3' },
+                            ],
+                        },
+                    ],
+                },
+                {
+                    key: '3',
+                    label: 'Navigation Three',
+                    children: [
+                        { key: '31', label: 'Option 1' },
+                        { key: '32', label: 'Option 2' },
+                        { key: '33', label: 'Option 3' },
+                        { key: '34', label: 'Option 4' },
+                        { key: '35', label: 'Option 5' },
+                    ],
+                },
+                {
+                    key: '4',
+                    label: 'Navigation Four',
+                    children: [
+                        { key: '41', label: 'Option 1' },
+                        { key: '42', label: 'Option 2' },
+                    ],
+                },
+                {
+                    key: '5',
+                    label: 'Navigation Five',
+                    children: [
+                        { key: '51', label: 'Option 1' },
+                        { key: '52', label: 'Option 2' },
+                        { key: '53', label: 'Option 3' },
+                    ],
+                },
+            ];
+
+            return (
+                <div className="min-h-screen p-8">
+                    <h1 className="text-2xl font-bold mb-6">Main Content Area</h1>
+                    <p className="mb-4">展开菜单时宽度保持稳定，不会因滚动条出现而变化</p>
+                    <div className="h-[200vh]">
+                        {/* 长内容区域用于测试页面滚动 */}
+                    </div>
+                    <SidebarMenu items={items} />
+                </div>
+            );
+        };
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
